@@ -12,12 +12,11 @@ from selenium.webdriver.support import expected_conditions as EC
 
 def scrapy(driver, uid):
     url = "http://space.bilibili.com/" + str(uid) + "/#!/index"
-    try:
-        html = urlopen(url)
-    except HTTPError as e:
+
+    driver.get(url)
+    if(driver.title == "出错啦! - bilibili.tv"):
         print("error"+str(uid)+" url")
     else:
-        driver.get(url)
         try:
             element = WebDriverWait(driver, 200).until(
                 EC.element_to_be_clickable((By.CLASS_NAME, "quantity")))
@@ -52,7 +51,6 @@ def scrapy(driver, uid):
             # 释放锁，开启下一个线程
             threadLock.release()
 
-
 # 获取数量
 def getUnit(count):
     reCount = float(re.match(matchStr, count).group(0))
@@ -70,7 +68,7 @@ class myThread(threading.Thread):
     def run(self):
         driver = webdriver.PhantomJS(
             executable_path='C:/Users/Administrator/Downloads/phantomjs-2.1.1-windows (1)/phantomjs-2.1.1-windows/bin/phantomjs')
-        length = self.uid + 1000000
+        length = self.uid + 900000
         while (self.uid < length):
             scrapy(driver, self.uid)
             self.uid = self.uid + 1
@@ -83,11 +81,12 @@ matchStr = '[0-9\.]+'
 conn = pymysql.connect(host='localhost', port=3306, user='root', db='scraping', charset='utf8')
 cur = conn.cursor()
 
-uid1 = 5462
-uid2 = uid1 + 1000000
-uid3 = uid2 + 1000000
-uid4 = uid3 + 1000000
-uid5 = uid4 + 1000000
+uidBase = 5462
+uid1=11249
+uid2=1082124
+uid3=2011208
+uid4=3011212
+uid5=4011213
 
 threadLock = threading.Lock()
 
