@@ -1,8 +1,5 @@
 # -*-coding:utf-8-*-
 
-from urllib.request import urlretrieve, urlopen
-from urllib.error import HTTPError, URLError
-
 from bs4 import BeautifulSoup
 import pymysql, re, threading
 from selenium import webdriver
@@ -10,15 +7,16 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+
 def scrapy(driver, uid):
     url = "http://space.bilibili.com/" + str(uid) + "/#!/index"
 
     driver.get(url)
-    if(driver.title == "出错啦! - bilibili.tv"):
-        print("error"+str(uid)+" url")
+    if (driver.title == "出错啦! - bilibili.tv"):
+        print("error" + str(uid) + " url")
     else:
         try:
-            element = WebDriverWait(driver, 200).until(
+            element = WebDriverWait(driver, 20).until(
                 EC.element_to_be_clickable((By.CLASS_NAME, "quantity")))
 
         finally:
@@ -26,19 +24,16 @@ def scrapy(driver, uid):
             pageSource = driver.page_source
             bsObj = BeautifulSoup(pageSource)
             name = bsObj.find("span", {"id": "h-name"}).get_text()
-            # print(name)
             signature = bsObj.find("div", {"class": "h-sign"}).get_text()
-            # print(signature)
             fans = bsObj.find("a", {"href": "#!/fans/fans/1", "class": "item"}).find("span", {
                 "class": "quantity"}).get_text()
 
             fans = getUnit(fans)
-            # print(fans)
             follow = bsObj.find("a", {"href": "#!/fans/follow/1"}).find("span",
                                                                         {
                                                                             "class": "quantity"}).get_text()
             follow = getUnit(follow)
-            # print(follow)
+
             # sex = bsObj.find("span", {"id": "h-gender"}).attrs['class']
             # print(sex)
 
@@ -51,6 +46,7 @@ def scrapy(driver, uid):
             # 释放锁，开启下一个线程
             threadLock.release()
 
+
 # 获取数量
 def getUnit(count):
     reCount = float(re.match(matchStr, count).group(0))
@@ -59,6 +55,7 @@ def getUnit(count):
         reCount = reCount * 10000
     reCount = int(reCount)
     return reCount
+
 
 class myThread(threading.Thread):
     def __init__(self, uid):
@@ -82,34 +79,36 @@ conn = pymysql.connect(host='localhost', port=3306, user='root', db='scraping', 
 cur = conn.cursor()
 
 uidBase = 5462
-uid1=11249
-uid2=1082124
-uid3=2011208
-uid4=3011212
-uid5=4011213
+uid1 = 13802
+uid2 = 1094840
+uid3 = 2013700
+uid4 = 3013730
+uid5 = 4013748
+uid6 = 5002081
+uid7 = 6002085
+uid8 = 7002086
+uid9 = 8000000
+uid10 = 9000000
+uid11 = 10000000
+uid12 = 10100000
+
+uids = [uid1, uid2, uid3, uid4, uid5, uid6, uid7, uid8, uid9, uid10, uid11, uid12]
 
 threadLock = threading.Lock()
+threads = []
 
-thread1=myThread(uid1)
-thread2=myThread(uid2)
-thread3=myThread(uid3)
-thread4=myThread(uid4)
-thread5=myThread(uid5)
+# 创建子线程
+for uid in uids:
+    thread = myThread(uid)
+    threads.append(thread)
 
-thread1.start()
-thread2.start()
-thread3.start()
-thread4.start()
-thread5.start()
+# 开启子线程
+for thread in threads:
+    thread.start()
 
-thread1.join()
-thread2.join()
-thread3.join()
-thread4.join()
-thread5.join()
+# 挂起主线程
+for thread in threads:
+    thread.join()
 
 cur.close()
 conn.close()
-
-
-
