@@ -31,9 +31,9 @@ driver=webdriver.Chrome(r"C:/Users/Administrator/AppData/Local/Programs/Python/P
 driver.get('https://passport.bilibili.com/ajax/miniLogin/minilogin')
 
 # 账号
-username = 'username'
+username = '15594879056'
 # 密码
-password = '******'
+password = '740049121'
 driver.find_element_by_id('login-username').send_keys(username)
 driver.find_element_by_id('login-passwd').send_keys(password)
 print('CLICK')
